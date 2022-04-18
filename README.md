@@ -177,7 +177,7 @@ Windows安全中心 -> 防火墙和网络保护 -> 高级设置
 
 ``` sh
 # option prot proxy
-netsh interface portproxy add v4tov4 listenport=22 listenaddress=0.0.0.0 connectport=22 connectaddress=localhost
+netsh interface portproxy add v4tov4 listenport=23 listenaddress=0.0.0.0 connectport=23 connectaddress=localhost
 # show port proxy
 netsh interface portproxy show all
 
@@ -188,4 +188,25 @@ netsh interface portproxy show all
 --------------- ----------  --------------- ----------
 0.0.0.0         23          localhost       23
 ```
+
+然后设置完其他常规的ssh配置以后mac上就可以正常使用ssh连接wsl2了
+
+![图 3](images/19975b6b9c168f2944f081d530122f352444dd192b78cf4aeee78951abfa604c.png)  
+
+
+### VSCode on Wsl for Mac
+
+在mac端的vscode上安装插件: Remote-ssh
+
+然后在~/.ssh/config文件中配置ssh连接信息就可以了
+
+``` conf
+# my windows wsl2
+Host Wsl2
+  HostName 192.168.31.100
+  User root
+  Port 23
+```
+
+![图 4](images/5ef29f0309a4b5fe7b3b5658d44a2bda20ae877e1680abefcf1a21bd76e51981.png)  
 
