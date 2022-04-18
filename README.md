@@ -53,4 +53,90 @@ wsl --install -d Ubuntu-20.04
 
 ### 安装Cuda
 
-1. 官方cuda包安装
+
+我测试的时候官方文档推荐的方式是使用cuda-toolkit安装11.4版本, 但是我发现和tensorflow还存在兼容性问题, 所以我选择使用官方安装包安装11.2版本的cuda(后面会接受toolkit的方式)
+#### 方法1. 官方cuda包安装
+``` sh
+# 下载官方cuda安装程序
+wget https://developer.download.nvidia.com/compute/cuda/11.2.0/local_installers/cuda_11.2.0_460.27.04_linux.run
+
+# 执行安装程序安装cuda(根据提示操作)
+sudo sh cuda_11.2.0_460.27.04_linux.run
+```
+
+#### 方法2. cuda-toolkit安装
+``` sh
+sudo dpkg -i cuda*ubuntu*_amd64.deb
+sudo dpkg -i cuda*-cross-aarch64*_all.deb
+sudo apt-get update
+sudo apt-get install cuda-toolkit-x-x -y
+sudo apt-get install cuda-cross-aarch64* -y
+```
+
+添加环境变量
+
+``` sh
+vim ~/.bashrc
+
+# cuda
+export CUDA_HOME="/usr/local/cuda-11.2"
+export PATH="${CUDA_HOME}/bin:$PATH"
+export LD_LIBRARY_PATH="/usr/local/cuda-11.2/lib64:$LD_LIBRARY_PATH"
+
+source ~/.bashrc
+```
+
+### 安装CUDnn
+首先去官网下载对应版本的包<https://developer.nvidia.com/rdp/cudnn-archive>(*如果没有nv账号的需要先注册账号*)
+
+``` sh
+# 扔到ubuntu上(我选择的是 cudnn-11.2-linux-x64-v8.1.1.33.tgz)
+# 解压
+tar tar zxvf ./cudnn-11.2-linux-x64-v8.1.1.33.tgz 
+
+# 移动
+sudo cp cuda/include/cudnn*.h /usr/local/cuda-11.2/include
+sudo cp -P cuda/lib64/libcudnn* /usr/local/cuda-11.2/lib64
+sudo chmod a+r /usr/local/cuda-11.2/include/cudnn*.h 
+sudo chmod a+r /usr/local/cuda-11.2/lib64/libcudnn*
+```
+
+### 安装TensorFlow
+
+**注意:** tensoflow的版本对于cuda和cudnn的版本, 可以去官网查询<https://www.tensorflow.org/install/source#gpu>
+(*tensorflow1.0的版本是分gpu和cpu两种的, 而2.0以后就不分了*)
+``` sh
+# TensorFlow 2
+pip3 install tensorflow==2.6.0
+
+# TensorFlow 1需要单独制定gpu的版本, 不过官网显示1.0的版本不兼容python3.8和当前版本的cuda所以我没有做测试
+```
+
+### 测试GPU的连接
+
+``` python
+import tensorflow as tf
+
+print(tf.test.is_built_with_gpu_support())
+print(tf.config.list_physical_devices())
+
+
+# terminal output
+root@iMac:~/susur/PythonProject# python3 -u "/root/susur/PythonProject/tf_test.py"
+True
+2022-04-18 13:46:52.440924: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:923] could not open file to read NUMA node: /sys/bus/pci/devices/0000:01:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2022-04-18 13:46:52.464878: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:923] could not open file to read NUMA node: /sys/bus/pci/devices/0000:01:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2022-04-18 13:46:52.465102: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:923] could not open file to read NUMA node: /sys/bus/pci/devices/0000:01:00.0/numa_node
+Your kernel may have been built without NUMA support.
+[PhysicalDevice(name='/physical_device:CPU:0', device_type='CPU'), PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')]
+```
+
+这个`ould not open file to read NUMA node:...`的警告是wsl的通病, 官方的解释是无害警告, 可以正常运行;
+
+
+
+
+
+
