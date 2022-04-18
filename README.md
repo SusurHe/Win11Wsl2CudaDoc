@@ -135,8 +135,57 @@ Your kernel may have been built without NUMA support.
 
 这个`ould not open file to read NUMA node:...`的警告是wsl的通病, 官方的解释是无害警告, 可以正常运行;
 
+## VSCode on WSL
+
+1. 安装插件: Remote - WSL
+   
+   ![图 1](images/171f5324becae1446beadbae980a8b225667281a0c1afe3608749410ac6177b4.png)  
+
+2. 登入wsl (就可以使用vscode on wsl 开发代码了)
+   ![图 2](images/c799f5f6847f53aea06314153f72cb7e9c1dcddd109d45057d760e4b870c167f.png)  
 
 
 
+## Mac ssh登入Wsl2
 
+windows上开发和调试还是不习惯所以我尝试了一下Mac远程连接wsl的方式, 感觉下来还是挺好用的
+
+除了完成传统linux环境下ssh的配置以外, 还需要注意几点
+
+1. wsl2可以和windows本机共享一个ip, 而wsl2默认的ssh 端口为23, 也就是说其ssh-host为${you-windows-ip}:23, (这里要注意的是, wsl2上的端口要避免和windows上产生冲突);
+2. 虽然是共享ip,但是外界并不能直接访问wsl2, 需要配置端口映射才能访问;
+3. 需要在防火墙开发端口的访问权限;
+
+### 防火墙开发端口
+
+Windows安全中心 -> 防火墙和网络保护 -> 高级设置
+![图 3](images/3de838c718527184e91adbef6e92cae4a89dc6ce9b267b1fdeeaccd5eae399a0.png)  
+
+![图 5](images/29b97742eeccf2079e2149a3bff047b4aebeb42d5e989b218b7febc9fb9b7a76.png)  
+
+配置开发端口
+
+![图 6](images/5e140325629315f15d6ec8c06236a8b2cb95a1e9dafa1f7810ad93347763522c.png)  
+
+![图 7](images/f0eb5864ab743edc14338903dbbf1a16907193278833ada69af246cf128d233b.png)  
+
+![图 8](images/16989dc6578c47be12a76424f62d46303de74af9ea8f48ea3234bf57e7f41cfb.png)  
+
+![图 9](images/8b04406315b545a59e86216238220ce196b22e7dbe34678803c7de0b5878e8c8.png)  
+
+### 设置端口映射
+
+``` sh
+# option prot proxy
+netsh interface portproxy add v4tov4 listenport=22 listenaddress=0.0.0.0 connectport=22 connectaddress=localhost
+# show port proxy
+netsh interface portproxy show all
+
+
+侦听 ipv4:                 连接到 ipv4:
+
+地址            端口        地址            端口
+--------------- ----------  --------------- ----------
+0.0.0.0         23          localhost       23
+```
 
